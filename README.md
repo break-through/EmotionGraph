@@ -1,6 +1,6 @@
  # Dynamic Line Chart Library for Presenting Data using Color Gradient
 
-This library is implemented in Paper.js and takes as input points (x-value and y-value) in a file.
+This library is implemented in Paper.js and takes as input points (x-value and y-value) in a file. The file is created from parsing data presented from various other CSV files with differing data sets for emotion, separated by hour.
 
 It then gives back a line graph with a color gradient denoting extremely positive and extremely negative values.
 

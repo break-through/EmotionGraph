@@ -1,89 +1,69 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- Load the Paper.js library -->
-		<script type="text/javascript" src="js/paper-full.js"></script>
- 
- 
-		<!-- Load external PaperScript and associate it with myCanvas -->
- 	<script type="text/paperscript" canvas="myCanvas"> 
+	<!-- Load the Paper.js library -->
+	<script type="text/javascript" src="js/paper-full.js"></script>
+ 	<!-- Load external PaperScript and associate it with myCanvas -->
+ 	<script type="text/paperscript" canvas="myCanvas">        
+		var width, height, center;
+		var points = 24;
+		var smooth = true;
+		var path = new Path();
+		var mousePos = view.center / 2;
 
-                
+		var newHeight=300, newWidth=1200;
+		var scaleX = newWidth/(points+1);
+		//1 will be max positive, height/2 will be normal, height - 1 will be max negative, delta is 13
+		// a .7 will be 14-13*((.7-.5)/.5), a .3 will be 14+13*((.3)/.5)
+		view.viewSize = new Size(newWidth, newHeight);
 
-        var width, height, center;
-	var points = 24;
-	var smooth = true;
-	var path = new Path();
-	var mousePos = view.center / 2;
-	
-	var newHeight=300, newWidth=1200;
-	var scaleX = newWidth/(points+1);
-	//1 will be max positive, height/2 will be normal, height - 1 will be max negative, delta is 13
-        // a .7 will be 14-13*((.7-.5)/.5), a .3 will be 14+13*((.3)/.5)
-	view.viewSize = new Size(newWidth, newHeight);
+		var static_data = [1,14,14,14,14,14,14,14,14,14,29,14,1,14,14,14,14,14,14,14,14,14,29,14];
 
-	var static_data = [1,14,14,14,14,14,14,14,14,14,29,14,1,14,14,14,14,14,14,14,14,14,29,14];
-	
-	var pathHeight = mousePos.y;
-        
-        
+		var pathHeight = mousePos.y;
 
-	initializePath();
-        path.fillColor = "red";	
-        path.fillColor = {
-gradient: {
-stops: ['black', 'blue','yellow','lightgreen','lightblue']
-    },
-    origin: new Point(width/2, height*2),
-    destination: new Point(width/2, 0)
-
-};
-
-	function initializePath() {
-		center = view.center;
-		width = view.size.width;
-		height = view.size.height / 2;
-		path.segments = [];
-		path.add(new Point(0,height));
-		for (var i = 0; i < points; i++) {
-			var point = new Point(scaleX*(i+1), 0);
-			path.add(point);
-		}
-		//path.add(view.bounds.right);
-                path.add(new Point(view.size.width,height));
-		path.fullySelected = false;
-	}
-	function onFrame(event) {
-		pathHeight += (center.y - mousePos.y - pathHeight) / 10;
-		for (var i = 0; i < points; i++) {
-			var sinSeed = event.count + (i + i % 10) * 100;
-			var sinHeight = Math.sin(sinSeed / 200) * pathHeight;
-			var yPos = Math.sin(sinSeed / 100) * sinHeight + height;
-			path.segments[i+1].point.y = static_data[i]*10;
-		}
-		if (smooth)
-			path.smooth({ type: 'continuous' });
-	}
-	/*function onMouseMove(event) {
-		view.position = event.point;
-	}*/
-	
-	function onMouseDrag(event) {
-		var obas = new Size(event.delta.x, event.delta.y);
-                view.translate(obas);
-	}
-	// Reposition the path whenever the window is resized:
-	function onResize(event) {
 		initializePath();
-	}
+			
+		path.fillColor = {
+			gradient: {stops: ['black', 'blue','yellow','lightgreen','lightblue'},
+	    		origin: new Point(width/2, height*2),
+	    		destination: new Point(width/2, 0)
+		};
 
+		function initializePath() {
+			center = view.center;
+			width = view.size.width;
+			height = view.size.height / 2;
+			path.segments = [];
+			path.add(new Point(0,height));
+			
+			for (var i = 0; i < points; i++) {
+				var point = new Point(scaleX*(i+1), 0);
+				path.add(point);
+			}
+			path.add(new Point(view.size.width,height));
+			path.fullySelected = false;
+		}
+		
+		function onFrame(event) {
+			for (var i = 0; i < points; i++)
+				path.segments[i+1].point.y = static_data[i]*10;
+			if (smooth)
+				path.smooth({ type: 'continuous' });
+		}
 
-
-
-		</script>
+		function onMouseDrag(event) {
+			var obas = new Size(event.delta.x, event.delta.y);
+			view.translate(obas);
+		}
+		
+		// Reposition the path whenever the window is resized:
+		function onResize(event) {
+			initializePath();
+		}
+	</script>
 	</head>
-	<body>
-			<canvas id="myCanvas" resize></canvas>
-<input type="file" id="file input">
-	</body>
+<body>
+	<canvas id="myCanvas" resize></canvas>
+	<input type="file" id="file input">
+</body>
 </html>

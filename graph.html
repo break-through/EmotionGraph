@@ -2,13 +2,33 @@
 <html>
 	<head>
 		<!-- Load the Paper.js library -->
-		<script type="text/javascript" src="C:/Users/Angelos/node_modules/paper/dist/docs/assets/js/paper.js"></script>
+
+		<script type="text/javascript" src="js/paper-full.js"></script>
  
-         <script src="http://d3js.org/d3.v3.min.js"></script>
+           <script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+var globalAm=[];
+var globalEm=[];
+
+d3.csv("dataset.csv",function(csv){
+            csv.map(function(d){
+                globalAm.push(d.time);
+                globalEm.push(+d.emotion);
+            })
+            //called after the AJAX is success
+ console.log(globalAm.length);
+        });
+
+</script>
+
+
+		<!-- Load external PaperScript and associate it with myCanvas -->
+ 	<script src="http://d3js.org/d3.v3.min.js"></script>
 		<!-- Load external PaperScript and associate it with myCanvas -->
 		<script type="text/paperscript" canvas="myCanvas"> 
            
-			var points = 24;
+			var points = globalAm.length;
+console.log(globalEm.length);
 			var path = new Path();
 	
 			var height=300, width=1200;
@@ -18,7 +38,13 @@
 			
 			/// We will normalize values from [0 .. 1] to [1 .. height-1]
 			view.viewSize = new Size(width, height);
-			var static_data = [1,14,14,14,14,14,14,14,14,14,29,14,1,14,14,14,14,14,14,14,14,14,29,14];        
+			var static_data =[];
+			returnPixelArr(globalEm);
+			function returnPixelArr(array){
+				for (var i = 0; i < array.length; i++) {
+					static_data[i] = ((-height + 2)*array[i]+height-1);
+				}   
+			}   
         
 			initializePath();
 			
@@ -30,7 +56,7 @@
 			};
 			
 			function initializePath() {
-				path.segments = [];
+ 				path.segments = [];
 				path.add(new Point(0,height/2));
 				
 				for (var i = 0; i < points; i++) {
@@ -44,7 +70,7 @@
 			
 			function onFrame(event) {
 				for (var i = 0; i < points; i++)
-					path.segments[i+1].point.y = static_data[i]*10;
+					path.segments[i+1].point.y = static_data[i];
 				path.smooth({ type: 'continuous' });
 			}
 	
@@ -60,6 +86,8 @@
 		</script>
 	</head>
 	<body>
+                        
 			<canvas id="myCanvas" resize></canvas>
+
 	</body>
 </html>

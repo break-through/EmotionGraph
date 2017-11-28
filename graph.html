@@ -8,13 +8,7 @@
 		<!-- Load external PaperScript and associate it with myCanvas -->
  	<script type="text/paperscript" canvas="myCanvas"> 
         
-       var f = "dataset.csv"
-       d3.csv(f, function(d) {
-	return {
-		Name: d.Name, Surname: d.Surname, Age: d.Age,
-	};
-	}, function(error, rows) {
-	d3.select(
+    
                 
            
         var width, height, center;

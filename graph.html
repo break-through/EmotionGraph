@@ -2,83 +2,84 @@
 <html>
 	<head>
 		<!-- Load the Paper.js library -->
-
-		<script type="text/javascript" src="js/paper-full.js"></script>
- 
-           <script src="http://d3js.org/d3.v3.min.js"></script>
-<script>
-var globalAm=[];
-var globalEm=[];
-
-d3.csv("dataset.csv",function(csv){
-            csv.map(function(d){
-                globalAm.push(d.time);
-                globalEm.push(+d.emotion);
-            })
-            //called after the AJAX is success
- console.log(globalAm.length);
-        });
-
-</script>
+		<script type="text/javascript" src="C:/Users/Angelos/node_modules/paper/dist/docs/assets/js/paper.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+		
+		<script>
+			var globalx=[];
+			var globaly=[];
+			d3.csv("dataset.csv",function(csv){
+				csv.map(function(d){
+					globalx.push(d.time);
+					globaly.push(+d.emotion);
+				})
+			});
+		</script>
 
 
 		<!-- Load external PaperScript and associate it with myCanvas -->
- 	<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="http://d3js.org/d3.v3.min.js"></script>
 		<!-- Load external PaperScript and associate it with myCanvas -->
 		<script type="text/paperscript" canvas="myCanvas"> 
            
-			var points = globalAm.length;
-console.log(globalEm.length);
-			var path = new Path();
-	
-			var height=300, width=1200;
-			
-			/// can change scaleX
-			var scaleX = width/(points+1);
-			
-			/// We will normalize values from [0 .. 1] to [1 .. height-1]
+			/// Initialization of variables
+			var height = 300, width = 1200;  /// height and width of the view
+			var low = 0, high = 1;          /// the range in which our values reside
+		   
+			var points = globalx.length;     /// number of points in the chart
+			var scaleX = width/(points+1);  /// x-distance between two concecutive points, narrower or wider view
+				
 			view.viewSize = new Size(width, height);
 			var static_data =[];
-			returnPixelArr(globalEm);
-			function returnPixelArr(array){
-				for (var i = 0; i < array.length; i++) {
-					static_data[i] = ((-height + 2)*array[i]+height-1);
-				}   
-			}   
-        
-			initializePath();
 			
-			/// can change the gradient color
+			returnPixelArr(globaly);
+			
+			function returnPixelArr(array){
+				/// arguments
+				///   array: an array of the y-values in the range [low..high]
+				/// returns
+				///   static_data: an array of the normalized y-values that lie in the range [1..height-1]
+				
+				for (var i = 0; i < array.length; i++) {
+					static_data[i] = (-(height - 2)*array[i]+height*high-(high+low))/(high-low);
+				}
+			}   
+			
+			var path = new Path();
+			
+			initializePath();
+				
+			/// Set up the gradient color
 			path.fillColor = {
 				gradient: {stops: ['black', 'blue','yellow','lightgreen','lightblue']},
-				origin: new Point(width/2, height),
-				destination: new Point(width/2, 0)
+				origin: new Point(width/2, height),  /// minimum negative is bottomost point
+ 				destination: new Point(width/2, 0)   /// maximum positive is topmost point
 			};
-			
-			function initializePath() {
- 				path.segments = [];
-				path.add(new Point(0,height/2));
 				
+			function initializePath() {
+				path.segments = [];
+				path.add(new Point(0,height/2)); /// first point is at the middle and left
+					
 				for (var i = 0; i < points; i++) {
 					var point = new Point(scaleX*(i+1), 0);  /// set everything to zero
 					path.add(point);
 				}
-		
-				path.add(new Point(width,height/2));
+			
+				path.add(new Point(width,height/2));  /// last point is at the middle and right
 				path.fullySelected = false;
 			}
-			
-			function onFrame(event) {
+				
+			function onFrame(event) {  /// function to set up the smoothness of the chart
 				for (var i = 0; i < points; i++)
 					path.segments[i+1].point.y = static_data[i];
 				path.smooth({ type: 'continuous' });
 			}
-	
-			function onMouseDrag(event) {
+		
+			function onMouseDrag(event) {  /// function so the chart can be movable using mouse
 				var moveVector = new Size(event.delta.x, event.delta.y);
-                view.translate(moveVector);
+				view.translate(moveVector);
 			}
-	
+		
 			// Reposition the path whenever the window is resized:
 			function onResize(event) {
 				initializePath();
